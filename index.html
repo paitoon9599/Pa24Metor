@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pajero Sport OBD2 Cloud App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans p-4 max-w-md mx-auto space-y-4">
+
+  <!-- HEADER -->
+  <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center">
+    <div>
+      <h1 class="text-lg font-black text-cyan-400">PAJERO SPORT 2.4</h1>
+      <p class="text-xs text-slate-400">GitHub Cloud Web App</p>
+    </div>
+    <span id="status-badge" class="px-3 py-1 text-xs font-bold rounded-full bg-rose-950 text-rose-400 border border-rose-800">
+      CONNECTING...
+    </span>
+  </div>
+
+  <!-- SPEED & RPM -->
+  <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center space-y-2">
+    <div class="text-xs text-slate-400 uppercase tracking-widest font-semibold">ความเร็วปัจจุบัน (KM/H)</div>
+    <div id="val-speed" class="text-8xl font-black text-cyan-400 font-mono my-2">0</div>
+    <div class="text-sm text-slate-300">
+      รอบเครื่องยนต์: <span id="val-rpm" class="text-amber-400 font-bold font-mono">800</span> RPM
+    </div>
+  </div>
+
+  <!-- RADIO PLAYER -->
+  <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+    <div class="flex items-center space-x-3">
+      <span class="text-3xl">📻</span>
+      <div>
+        <h3 class="font-bold text-rose-400">COOLfahrenheit 93</h3>
+        <p class="text-xs text-slate-400">ฟังเพลงออนไลน์ 24 ชั่วโมง</p>
+      </div>
+    </div>
+    <audio id="radio-player" src="https://sp.coolism.net/cool93/stream" preload="none"></audio>
+    <button id="btn-radio" onclick="toggleRadio()" class="w-full py-3 bg-rose-600 hover:bg-rose-500 font-bold rounded-xl text-sm transition">
+      ▶ ฟังวิทยุสด
+    </button>
+  </div>
+
+  <!-- SENSORS -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+      <div class="text-xs text-slate-400">ความร้อนหม้อน้ำ</div>
+      <div class="text-xl font-bold text-emerald-400 mt-1"><span id="val-ect">--</span> °C</div>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+      <div class="text-xs text-slate-400">ลิ้นปีกผีเสื้อ (TPS)</div>
+      <div class="text-xl font-bold text-cyan-400 mt-1"><span id="val-tps">--</span> %</div>
+    </div>
+  </div>
+
+  <script>
+    // IP ของ ESP32 ในโหมด AP
+    const ESP32_API_URL = "http://192.168.4.1/api/data"; 
+    const audio = document.getElementById('radio-player');
+    const btnRadio = document.getElementById('btn-radio');
+    const badge = document.getElementById('status-badge');
+
+    function toggleRadio() {
+      if (audio.paused) {
+        audio.play().then(() => {
+          btnRadio.innerText = "⏸ หยุดเล่นวิทยุ";
+          btnRadio.className = "w-full py-3 bg-amber-600 font-bold rounded-xl text-sm transition";
+        }).catch(() => {
+          alert("หากวิทยุไม่เล่น ให้เปิดระบบ Wi-Fi Assist / Cellular Data Assist บนมือถือเพื่อใช้เน็ตซิมดึงสตรีมเพลงครับ");
+        });
+      } else {
+        audio.pause();
+        btnRadio.innerText = "▶ ฟังวิทยุสด";
+        btnRadio.className = "w-full py-3 bg-rose-600 font-bold rounded-xl text-sm transition";
+      }
+    }
+
+    // ดึงข้อมูล API จาก ESP32 ทุกๆ 300ms
+    setInterval(() => {
+      fetch(ESP32_API_URL)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('val-speed').innerText = data.speed;
+          document.getElementById('val-rpm').innerText = data.rpm;
+          document.getElementById('val-ect').innerText = data.ect;
+          document.getElementById('val-tps').innerText = data.tps;
+
+          badge.innerText = "ONLINE";
+          badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800";
+        })
+        .catch(err => {
+          badge.innerText = "OFFLINE";
+          badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-rose-950 text-rose-400 border border-rose-800";
+        });
+    }, 300);
+  </script>
+</body>
+</html>
