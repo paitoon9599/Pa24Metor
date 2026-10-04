@@ -3,96 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pajero Sport OBD2 Cloud App</title>
+  <title>Tesla Style Pajero OBD2 Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+      background: #090a0f;
+    }
+    .font-digital {
+      font-family: 'Orbitron', sans-serif;
+    }
+    .tesla-card {
+      background: rgba(18, 22, 31, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .glow-cyan {
+      text-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+    }
+    .glow-amber {
+      text-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+    }
+    .glow-red {
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans p-4 max-w-md mx-auto space-y-4">
+<body class="text-slate-200 min-h-screen pb-24 select-none">
 
-  <!-- HEADER -->
-  <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center">
-    <div>
-      <h1 class="text-lg font-black text-cyan-400">PAJERO SPORT 2.4</h1>
-      <p class="text-xs text-slate-400">GitHub Cloud Web App</p>
-    </div>
-    <span id="status-badge" class="px-3 py-1 text-xs font-bold rounded-full bg-rose-950 text-rose-400 border border-rose-800">
-      CONNECTING...
-    </span>
-  </div>
-
-  <!-- SPEED & RPM -->
-  <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center space-y-2">
-    <div class="text-xs text-slate-400 uppercase tracking-widest font-semibold">ความเร็วปัจจุบัน (KM/H)</div>
-    <div id="val-speed" class="text-8xl font-black text-cyan-400 font-mono my-2">0</div>
-    <div class="text-sm text-slate-300">
-      รอบเครื่องยนต์: <span id="val-rpm" class="text-amber-400 font-bold font-mono">800</span> RPM
-    </div>
-  </div>
-
-  <!-- RADIO PLAYER -->
-  <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+  <!-- TOP TESLA NAVIGATION BAR -->
+  <header class="w-full px-6 py-4 flex justify-between items-center border-b border-slate-800/80 bg-slate-950/80 sticky top-0 z-50 backdrop-blur-md">
     <div class="flex items-center space-x-3">
-      <span class="text-3xl">📻</span>
-      <div>
-        <h3 class="font-bold text-rose-400">COOLfahrenheit 93</h3>
-        <p class="text-xs text-slate-400">ฟังเพลงออนไลน์ 24 ชั่วโมง</p>
-      </div>
+      <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+      <span class="font-digital font-bold text-lg tracking-wider text-slate-100">PAJERO <span class="text-cyan-400">SPORT</span></span>
     </div>
-    <audio id="radio-player" src="https://sp.coolism.net/cool93/stream" preload="none"></audio>
-    <button id="btn-radio" onclick="toggleRadio()" class="w-full py-3 bg-rose-600 hover:bg-rose-500 font-bold rounded-xl text-sm transition">
-      ▶ ฟังวิทยุสด
-    </button>
-  </div>
+    
+    <!-- SYSTEM TIME & AP STATUS -->
+    <div class="flex items-center space-x-4">
+      <div id="clock" class="font-digital text-sm text-slate-400">12:00</div>
+      <span id="status-badge" class="px-3 py-1 text-xs font-bold rounded-full bg-rose-950/80 text-rose-400 border border-rose-800/50">
+        DISCONNECTED
+      </span>
+    </div>
+  </header>
 
-  <!-- SENSORS -->
-  <div class="grid grid-cols-2 gap-3">
-    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
-      <div class="text-xs text-slate-400">ความร้อนหม้อน้ำ</div>
-      <div class="text-xl font-bold text-emerald-400 mt-1"><span id="val-ect">--</span> °C</div>
-    </div>
-    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
-      <div class="text-xs text-slate-400">ลิ้นปีกผีเสื้อ (TPS)</div>
-      <div class="text-xl font-bold text-cyan-400 mt-1"><span id="val-tps">--</span> %</div>
+  <main class="max-w-xl mx-auto px-4 pt-6 space-y-6">
+
+    <!-- TESLA SPEED & RPM CLUSTER -->
+    <section class="tesla-card p-6 rounded-3xl text-center relative overflow-hidden">
+      <!-- Background Ambient Glow -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="text-xs font-digital tracking-widest text-slate-400 uppercase">Vehicle Speed</div>
+      
+      <!-- SPEED DISPLAY -->
+      <div class="my-2 flex justify-center items-baseline space-x-2">
+        <span id="val-speed" class="font-digital text-8xl font-black text-slate-100 tracking-tight glow-cyan">0</span>
+        <span class="font-digital text-xl text-cyan-400 font-bold">KM/H</span>
+      </div>
+
+      <!-- RPM DYNAMIC PROGRESS BAR -->
+      <div class="space-y-2 mt-6">
+        <div class="flex justify-between text-xs font-digital text-slate-400 px-1">
+          <span>RPM TACHOMETER</span>
+          <span id="val-rpm" class="text-amber-400 font-bold glow-amber">800 RPM</span>
+        </div>
+        <div class="w-full h-3 bg-slate-800/80 rounded-full p-0.5 overflow-hidden border border-slate-700/50">
+          <div id="rpm-bar" class="h-full bg-gradient-to-r from-cyan-500 via-amber-500 to-rose-500 rounded-full transition-all duration-300" style="width: 10%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SENSOR TILES (2x2 GRID) -->
+    <section class="grid grid-cols-2 gap-4">
+      <!-- COOLANT TEMP -->
+      <div class="tesla-card p-5 rounded-2xl flex flex-col justify-between">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-400">ความร้อนหม้อน้ำ</span>
+          <span class="text-lg">🌡️</span>
+        </div>
+        <div class="mt-4">
+          <span id="val-ect" class="font-digital text-3xl font-bold text-emerald-400">--</span>
+          <span class="text-xs text-slate-400 ml-1">°C</span>
+        </div>
+      </div>
+
+      <!-- THROTTLE POSITION -->
+      <div class="tesla-card p-5 rounded-2xl flex flex-col justify-between">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-400">ลิ้นปีกผีเสื้อ</span>
+          <span class="text-lg">⚡</span>
+        </div>
+        <div class="mt-4">
+          <span id="val-tps" class="font-digital text-3xl font-bold text-cyan-400">--</span>
+          <span class="text-xs text-slate-400 ml-1">%</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TESLA FLOATING MEDIA DOCK (BOTTOM NAVBAR) -->
+  <div class="fixed bottom-4 left-0 right-0 max-w-xl mx-auto px-4 z-50">
+    <div class="tesla-card p-3 rounded-2xl flex items-center justify-between shadow-2xl border border-slate-700/60">
+      <div class="flex items-center space-x-3 pl-2">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white font-bold shadow-lg">
+          📻
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-100">COOLfahrenheit 93</div>
+          <div class="text-xs text-slate-400">Live Streaming</div>
+        </div>
+      </div>
+
+      <audio id="radio-player" src="https://sp.coolism.net/cool93/stream" preload="none"></audio>
+      
+      <button id="btn-radio" onclick="toggleRadio()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-lg transition active:scale-95">
+        ▶ PLAY
+      </button>
     </div>
   </div>
 
   <script>
-    // IP ของ ESP32 ในโหมด AP
-    const ESP32_API_URL = "http://192.168.4.1/api/data"; 
+    const ESP32_API_URL = "http://192.168.4.1/api/data";
     const audio = document.getElementById('radio-player');
     const btnRadio = document.getElementById('btn-radio');
     const badge = document.getElementById('status-badge');
 
+    // นาฬิกาแบบ Realtime
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').innerText = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ควบคุมวิทยุ
     function toggleRadio() {
       if (audio.paused) {
         audio.play().then(() => {
-          btnRadio.innerText = "⏸ หยุดเล่นวิทยุ";
-          btnRadio.className = "w-full py-3 bg-amber-600 font-bold rounded-xl text-sm transition";
+          btnRadio.innerText = "⏸ PAUSE";
+          btnRadio.className = "px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-lg transition active:scale-95";
         }).catch(() => {
-          alert("หากวิทยุไม่เล่น ให้เปิดระบบ Wi-Fi Assist / Cellular Data Assist บนมือถือเพื่อใช้เน็ตซิมดึงสตรีมเพลงครับ");
+          alert("หากวิทยุไม่เล่น กรุณาเปิดเน็ตซิมคู่กับ Wi-Fi ของ ESP32 ครับ");
         });
       } else {
         audio.pause();
-        btnRadio.innerText = "▶ ฟังวิทยุสด";
-        btnRadio.className = "w-full py-3 bg-rose-600 font-bold rounded-xl text-sm transition";
+        btnRadio.innerText = "▶ PLAY";
+        btnRadio.className = "px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-lg transition active:scale-95";
       }
     }
 
-    // ดึงข้อมูล API จาก ESP32 ทุกๆ 300ms
+    // Fetch ดึงข้อมูลจาก ESP32
     setInterval(() => {
       fetch(ESP32_API_URL)
         .then(res => res.json())
         .then(data => {
           document.getElementById('val-speed').innerText = data.speed;
-          document.getElementById('val-rpm').innerText = data.rpm;
+          document.getElementById('val-rpm').innerText = data.rpm + " RPM";
           document.getElementById('val-ect').innerText = data.ect;
           document.getElementById('val-tps').innerText = data.tps;
 
+          // คำนวณหลอด RPM (สูงสุด 6000 RPM)
+          let rpmPercent = Math.min((data.rpm / 6000) * 100, 100);
+          document.getElementById('rpm-bar').style.width = rpmPercent + "%";
+
           badge.innerText = "ONLINE";
-          badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800";
+          badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800/50";
         })
         .catch(err => {
-          badge.innerText = "OFFLINE";
-          badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-rose-950 text-rose-400 border border-rose-800";
+          badge.innerText = "DISCONNECTED";
+          badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-rose-950/80 text-rose-400 border border-rose-800/50";
         });
     }, 300);
   </script>
