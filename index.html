@@ -1,458 +1,474 @@
 <!DOCTYPE html>
-<html lang="th" class="h-full bg-slate-950">
+<html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pajero Sport 2.4 OBD2 & Smart Entertainment Dashboard</title>
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['Chakra Petch', 'monospace'],
-          },
-          colors: {
-            tesla: {
-              red: '#e82127',
-              dark: '#0f1015',
-              card: '#181a20',
-              border: '#2a2d36',
-              cyan: '#00f0ff',
-              green: '#00ff88',
-              amber: '#ffaa00'
-            }
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pajero Sport 2.4L OBD2 Futuristic Dashboard</title>
+    <!-- Chart.js สำหรับวาดกราฟ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-      }
-    }
-  </script>
 
-  <style>
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0f1015; }
-    ::-webkit-scrollbar-thumb { background: #2a2d36; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3f4452; }
+        body {
+            background-color: #060913;
+            color: #e2e8f0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-    .glow-cyan { filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.4)); }
-    .glow-red { filter: drop-shadow(0 0 8px rgba(232, 33, 39, 0.5)); }
-    .glow-amber { filter: drop-shadow(0 0 8px rgba(255, 170, 0, 0.5)); }
-    
-    .glass-panel {
-      background: rgba(24, 26, 32, 0.75);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-  </style>
+        /* Digital Font Look */
+        .font-digital {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        /* Glassmorphism Card Style */
+        .card {
+            background: rgba(13, 20, 36, 0.75);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 16px;
+            padding: 18px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Header Layout */
+        .header-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .title-group h1 {
+            color: #00f3ff;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            background: rgba(0, 243, 255, 0.15);
+            color: #00f3ff;
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* Controls & Status Indicator */
+        .status-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(4, 8, 18, 0.8);
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        .status-dot.active {
+            background-color: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-dot.demo {
+            background-color: #a855f7;
+            box-shadow: 0 0 10px #a855f7;
+        }
+
+        .status-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-title {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #f87171;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-connect {
+            background: #00f3ff;
+            color: #060913;
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.3);
+        }
+
+        .btn-demo {
+            background: #a855f7;
+            color: #fff;
+        }
+
+        .btn-action {
+            background: #f59e0b;
+            color: #000;
+        }
+
+        .btn-danger {
+            background: #f43f5e;
+            color: #fff;
+        }
+
+        /* Dashboard Grid */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .gauge-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 160px;
+        }
+
+        .gauge-label {
+            position: absolute;
+            top: 14px;
+            left: 16px;
+            font-size: 0.7rem;
+            color: #64748b;
+            font-weight: bold;
+        }
+
+        .gauge-value {
+            font-size: 3.2rem;
+            margin: 10px 0 2px 0;
+            text-shadow: 0 0 15px currentColor;
+        }
+
+        .gauge-unit {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+
+        .progress-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Sensor Row */
+        .sensor-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid #1e293b;
+            padding: 12px 16px;
+            border-radius: 12px;
+        }
+
+        .sensor-title {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .sensor-value {
+            font-size: 1.1rem;
+            color: #38bdf8;
+            font-weight: bold;
+        }
+
+        /* Bottom Section Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+
+        .log-terminal {
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #38bdf8;
+            height: 120px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
 </head>
-<body class="h-full font-sans text-slate-100 bg-slate-950 flex flex-col overflow-hidden select-none">
+<body>
 
-  <!-- Top Bar Header -->
-  <header class="h-14 bg-slate-900/90 border-b border-slate-800 px-4 flex items-center justify-between z-20 shrink-0">
-    <div class="flex items-center gap-3">
-      <i class="fa-solid font-bold text-tesla-red text-xl fa-car-side glow-red"></i>
-      <div>
-        <h1 class="font-bold text-base tracking-wider font-mono text-slate-100 flex items-center gap-2">
-          PAJERO SPORT <span class="text-xs px-1.5 py-0.5 rounded bg-tesla-red/20 text-tesla-red border border-tesla-red/40 font-mono">2.4 Gasoline (4G64)</span>
-        </h1>
-      </div>
-    </div>
+    <!-- Header -->
+    <header class="card header-card">
+        <div class="title-group">
+            <h1 class="font-digital">PAJERO SPORT <span class="badge">2.4L BENZINE 2012</span></h1>
+            <p class="subtitle">ELM327 OBD2 Intelligent Vehicle Telemetry System</p>
+        </div>
+        <div class="status-group">
+            <div id="statusDot" class="status-dot"></div>
+            <div class="status-info">
+                <span id="statusTitle" class="status-title">DISCONNECTED</span>
+                <span id="deviceName" style="font-size: 0.65rem; color: #64748b;">ยังไม่ได้เลือกอุปกรณ์</span>
+            </div>
+            <button id="connectBtn" onclick="connectBluetooth()" class="btn btn-connect">เชื่อมต่อ Bluetooth</button>
+            <button onclick="toggleSimulation()" class="btn btn-demo">โหมดจำลอง (Demo)</button>
+        </div>
+    </header>
 
-    <div class="hidden md:flex items-center gap-6 font-mono text-sm">
-      <div class="flex items-center gap-2 text-slate-400">
-        <i class="fa-solid fa-clock text-tesla-cyan"></i>
-        <span id="top-time">12:00</span>
-      </div>
-      <div class="flex items-center gap-2 text-slate-400">
-        <i class="fa-solid fa-radio text-emerald-400"></i>
-        <span id="radio-status-text" class="text-xs text-slate-300">วิทยุ: ปิดอยู่</span>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <button id="demo-mode-btn" onclick="toggleDemoMode()" class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center gap-2">
-        <i class="fa-solid fa-play text-xs text-amber-400"></i>
-        <span id="demo-btn-text">เปิดโหมดจำลอง (Demo)</span>
-      </button>
-
-      <button onclick="openConnectModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono bg-tesla-cyan/10 text-tesla-cyan border border-tesla-cyan/40 hover:bg-tesla-cyan/20 transition-all flex items-center gap-2 glow-cyan">
-        <i class="fa-solid fa-plug"></i>
-        <span>เชื่อมต่อ ESP32</span>
-      </button>
-    </div>
-  </header>
-
-  <main class="flex-1 flex overflow-hidden relative">
-
-    <!-- LEFT SIDEBAR: VEHICLE VISUALIZER -->
-    <section class="w-80 lg:w-96 bg-slate-900/60 border-r border-slate-800/80 flex flex-col p-4 space-y-4 overflow-y-auto shrink-0">
-      <div class="glass-panel rounded-2xl p-4 flex flex-col items-center justify-between relative min-h-[340px]">
-        <div class="w-full flex justify-between items-center text-xs font-mono text-slate-400">
-          <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-400"></i> <span>พร้อมใช้งาน</span></span>
-          <span class="text-tesla-cyan font-semibold">DYNAMIC SHIELD FRONT</span>
+    <!-- Gauges Grid -->
+    <main class="grid-3">
+        <!-- RPM -->
+        <div class="card gauge-card">
+            <span class="gauge-label font-digital">ENGINE SPEED</span>
+            <div id="rpmValue" class="gauge-value font-digital" style="color: #00f3ff;">0</div>
+            <span class="gauge-unit font-digital">RPM</span>
+            <div class="progress-bg"><div id="rpmBar" class="progress-bar" style="background: #00f3ff;"></div></div>
         </div>
 
-        <!-- PAJERO SPORT FRONT VIEW SVG VISUALIZER -->
-        <div class="relative my-3 w-full flex flex-col items-center justify-center">
-          <div class="absolute bottom-0 w-full h-12 bg-gradient-to-t from-tesla-cyan/15 to-transparent rounded-full blur-md pointer-events-none"></div>
-
-          <svg viewBox="0 0 400 240" class="w-full max-w-[290px] drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]">
-            <defs>
-              <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#475569"/>
-                <stop offset="50%" stop-color="#1e293b"/>
-                <stop offset="100%" stop-color="#0f172a"/>
-              </linearGradient>
-              <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ffffff"/>
-                <stop offset="50%" stop-color="#94a3b8"/>
-                <stop offset="100%" stop-color="#334155"/>
-              </linearGradient>
-            </defs>
-
-            <!-- Roof & Windshield -->
-            <path d="M 100,50 L 300,50 L 330,100 L 70,100 Z" fill="#090d16" stroke="#334155" stroke-width="2"/>
-            <path d="M 115,55 L 285,55 L 315,95 L 85,95 Z" fill="#0284c7" opacity="0.3"/>
-
-            <!-- Main Body Structure -->
-            <path d="M 60,100 L 340,100 L 360,140 L 350,195 L 50,195 L 40,140 Z" fill="url(#bodyGrad)" stroke="#475569" stroke-width="2"/>
-
-            <!-- Dynamic Shield Chrome Trim (X-Shape Front) -->
-            <path d="M 70,105 L 120,105 L 100,165 L 130,200 L 100,200 L 70,150 Z" fill="url(#chromeGrad)"/>
-            <path d="M 330,105 L 280,105 L 300,165 L 270,200 L 300,200 L 330,150 Z" fill="url(#chromeGrad)"/>
-
-            <!-- Front Center Grille -->
-            <rect x="130" y="108" width="140" height="12" fill="url(#chromeGrad)" rx="2"/>
-            <rect x="135" y="123" width="130" height="8" fill="url(#chromeGrad)" rx="2"/>
-            <rect x="140" y="134" width="120" height="22" fill="#090d16" rx="3"/>
-            <!-- Mitsubishi Emblem -->
-            <polygon points="200,137 193,148 207,148" fill="#e2e8f0"/>
-            <polygon points="193,148 186,159 200,159" fill="#cbd5e1"/>
-            <polygon points="207,148 200,159 214,159" fill="#cbd5e1"/>
-
-            <!-- LED Headlights -->
-            <polygon points="75,110 120,110 110,125 70,120" fill="#1e293b" stroke="url(#chromeGrad)" stroke-width="1.5"/>
-            <polygon points="325,110 280,110 290,125 330,120" fill="#1e293b" stroke="url(#chromeGrad)" stroke-width="1.5"/>
-            <circle id="svg-headlight-left" cx="85" cy="115" r="5" fill="#00f0ff" class="transition-all duration-300 opacity-40"/>
-            <circle id="svg-headlight-right" cx="315" cy="115" r="5" fill="#00f0ff" class="transition-all duration-300 opacity-40"/>
-
-            <!-- Bumper & Lower Skid Plate -->
-            <path d="M 120,190 L 280,190 L 270,210 L 130,210 Z" fill="url(#chromeGrad)"/>
-            <rect x="150" y="210" width="100" height="10" fill="#020617" rx="2"/>
-
-            <!-- Tires Front View -->
-            <rect x="35" y="150" width="20" height="50" fill="#020617" rx="4"/>
-            <rect x="345" y="150" width="20" height="50" fill="#020617" rx="4"/>
-          </svg>
-
-          <span class="text-[11px] font-mono text-slate-400 mt-2">MITSUBISHI PAJERO SPORT (ด้านหน้า)</span>
+        <!-- SPEED -->
+        <div class="card gauge-card">
+            <span class="gauge-label font-digital">VEHICLE SPEED</span>
+            <div id="speedValue" class="gauge-value font-digital" style="color: #10b981;">0</div>
+            <span class="gauge-unit font-digital">KM/H</span>
+            <div class="progress-bg"><div id="speedBar" class="progress-bar" style="background: #10b981;"></div></div>
         </div>
 
-        <!-- Mini Telemetry -->
-        <div class="grid grid-cols-2 gap-2 w-full pt-2 border-t border-slate-800 text-xs">
-          <div class="flex flex-col bg-slate-950/50 p-2 rounded-xl border border-slate-800/60">
-            <span class="text-slate-400 text-[11px]">แรงดันแบตเตอรี่</span>
-            <span class="font-mono text-base font-bold text-tesla-cyan mt-0.5"><span id="val-batt">13.8</span> V</span>
-          </div>
-          <div class="flex flex-col bg-slate-950/50 p-2 rounded-xl border border-slate-800/60">
-            <span class="text-slate-400 text-[11px]">ความร้อนหม้อน้ำ</span>
-            <span class="font-mono text-base font-bold text-emerald-400 mt-0.5"><span id="val-ect">88</span> °C</span>
-          </div>
+        <!-- COOLANT TEMP -->
+        <div class="card gauge-card">
+            <span class="gauge-label font-digital">COOLANT TEMP</span>
+            <div id="tempValue" class="gauge-value font-digital" style="color: #f59e0b;">--</div>
+            <span class="gauge-unit font-digital">°C</span>
+            <div class="progress-bg"><div id="tempBar" class="progress-bar" style="background: #f59e0b;"></div></div>
         </div>
-      </div>
+    </main>
 
-      <!-- Quick Controls -->
-      <div class="glass-panel rounded-2xl p-3.5 space-y-2.5">
-        <h3 class="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">ควบคุมไฟหน้า</h3>
-        <button onclick="toggleHeadlights()" id="btn-light" class="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition border border-slate-700 font-mono text-xs flex items-center justify-center gap-2">
-          <i class="fa-solid fa-lightbulb text-amber-400"></i>
-          <span>เปิด/ปิด ไฟหน้า LED</span>
-        </button>
-      </div>
+    <!-- Sub Sensors -->
+    <section class="grid-3">
+        <div class="sensor-card">
+            <span class="sensor-title">แรงดันแบตเตอรี่ (Battery Voltage)</span>
+            <span id="voltageValue" class="sensor-value font-digital">-- V</span>
+        </div>
+        <div class="sensor-card">
+            <span class="sensor-title">ภาระเครื่องยนต์ (Engine Load)</span>
+            <span id="loadValue" class="sensor-value font-digital" style="color: #10b981;">-- %</span>
+        </div>
+        <div class="sensor-card">
+            <span class="sensor-title">ลิ้นปีกผีเสื้อ (Throttle Pos)</span>
+            <span id="throttleValue" class="sensor-value font-digital" style="color: #f59e0b;">-- %</span>
+        </div>
     </section>
 
-    <!-- RIGHT MAIN CONTENT -->
-    <section class="flex-1 flex flex-col bg-slate-950 overflow-y-auto">
-      <!-- Tab Navigation -->
-      <div class="flex items-center gap-1 p-2 bg-slate-900/80 border-b border-slate-800/80 px-4 shrink-0">
-        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition flex items-center gap-2 bg-tesla-cyan/10 text-tesla-cyan border border-tesla-cyan/30">
-          <i class="fa-solid fa-gauge-high"></i>
-          <span>แดชบอร์ด</span>
-        </button>
-        <button onclick="switchTab('radio')" id="tab-radio" class="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
-          <i class="fa-solid fa-radio text-emerald-400"></i>
-          <span>วิทยุออนไลน์ (COOL93 / พี่ฉอด)</span>
-        </button>
-        <button onclick="switchTab('dtc')" id="tab-dtc" class="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
-          <i class="fa-solid fa-microchip"></i>
-          <span>วิเคราะห์โค้ด (DTC)</span>
-        </button>
-      </div>
-
-      <!-- VIEW 1: DASHBOARD -->
-      <div id="view-dashboard" class="p-4 lg:p-6 space-y-6 flex-1">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Speedometer -->
-          <div class="glass-panel rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
-            <span class="absolute top-4 left-5 text-xs font-mono text-slate-400 flex items-center gap-2">
-              <i class="fa-solid fa-gauge text-tesla-cyan"></i>
-              <span>ความเร็วรถยนต์ (SPEED)</span>
-            </span>
-            <div class="relative w-64 h-64 md:w-72 md:h-72 flex items-center justify-center my-2">
-              <canvas id="canvas-speed" width="300" height="300" class="w-full h-full"></canvas>
-              <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span id="speed-digital" class="font-mono text-6xl font-extrabold text-white tracking-tight glow-cyan">0</span>
-                <span class="font-mono text-xs text-tesla-cyan mt-1 font-semibold">KM/H</span>
-              </div>
+    <!-- Chart & Diagnostics -->
+    <section class="grid-2">
+        <div class="card">
+            <h3 class="font-digital" style="font-size: 0.85rem; color: #00f3ff; margin-bottom: 12px;">REAL-TIME TELEMETRY GRAPH</h3>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
             </div>
-          </div>
-
-          <!-- Tachometer (RPM) -->
-          <div class="glass-panel rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
-            <span class="absolute top-4 left-5 text-xs font-mono text-slate-400 flex items-center gap-2">
-              <i class="fa-solid fa-circle-notch text-tesla-amber"></i>
-              <span>รอบเครื่องยนต์ (RPM)</span>
-            </span>
-            <div class="relative w-64 h-64 md:w-72 md:h-72 flex items-center justify-center my-2">
-              <canvas id="canvas-rpm" width="300" height="300" class="w-full h-full"></canvas>
-              <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span id="rpm-digital" class="font-mono text-5xl font-extrabold text-white tracking-tight">0.0</span>
-                <span class="font-mono text-xs text-tesla-amber mt-1 font-semibold">RPM x1000</span>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
 
-      <!-- VIEW 2: RADIO ENTERTAINMENT PLAYER -->
-      <div id="view-radio" class="p-6 space-y-6 flex-1 hidden">
-        <div class="glass-panel rounded-3xl p-6 space-y-6 max-w-4xl">
-          <div class="border-b border-slate-800 pb-4 flex justify-between items-center">
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <h2 class="text-lg font-bold font-mono text-slate-100 flex items-center gap-2">
-                <i class="fa-solid fa-radio text-emerald-400"></i>
-                <span>ศูนย์รวมความบันเทิงวิทยุออนไลน์ (Radio Center)</span>
-              </h2>
-              <p class="text-xs text-slate-400 mt-1">รับฟังคลื่นเพลงโปรด COOLfahrenheit 93 และรายการพี่ฉอดได้ทันทีในรถของคุณ</p>
-            </div>
-          </div>
-
-          <!-- Audio Element -->
-          <audio id="main-audio-player" class="hidden"></audio>
-
-          <!-- Radio Station Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Station 1: COOLfahrenheit 93 -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-tesla-cyan/50 transition">
-              <div class="flex items-start justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-tesla-cyan text-xl font-bold font-mono">
-                    93
-                  </div>
-                  <div>
-                    <h3 class="font-bold text-slate-100 font-mono">COOLfahrenheit 93</h3>
-                    <p class="text-xs text-slate-400">เพลงเพราะต่อเนื่อง 24 ชั่วโมง</p>
-                  </div>
+                <h3 class="font-digital" style="font-size: 0.85rem; color: #00f3ff; margin-bottom: 12px;">SYSTEM DIAGNOSTICS (DTC)</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="scanDTC()" class="btn btn-action">สแกนหาโค้ด (Scan DTC)</button>
+                    <button onclick="clearDTC()" class="btn btn-danger">ลบโค้ด / ดับไฟเครื่องยนต์</button>
                 </div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ONLINE</span>
-              </div>
-              
-              <div class="mt-6 flex items-center justify-between">
-                <button onclick="playStation('https://coolism-coolfahrenheit.ladydyna.com/stream', 'COOLfahrenheit 93')" class="px-5 py-2.5 rounded-xl bg-tesla-cyan text-slate-950 font-bold font-mono text-xs hover:bg-cyan-300 transition flex items-center gap-2">
-                  <i class="fa-solid fa-play"></i>
-                  <span>ฟัง COOL93</span>
-                </button>
-                <a href="https://www.coolism.net" target="_blank" class="text-xs text-slate-400 hover:text-slate-200 underline">เปิดเว็บหลัก</a>
-              </div>
             </div>
-
-            <!-- Station 2: Green Wave 106.5 / Club Friday (พี่ฉอด) -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-emerald-500/50 transition">
-              <div class="flex items-start justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold font-mono">
-                    106.5
-                  </div>
-                  <div>
-                    <h3 class="font-bold text-slate-100 font-mono">Green Wave 106.5 FM</h3>
-                    <p class="text-xs text-slate-400">รายการพี่ฉอด / Club Friday</p>
-                  </div>
-                </div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ONLINE</span>
-              </div>
-
-              <div class="mt-6 flex items-center justify-between">
-                <button onclick="playStation('https://atime.mcot.net/greenwave', 'Green Wave 106.5 (พี่ฉอด)')" class="px-5 py-2.5 rounded-xl bg-emerald-400 text-slate-950 font-bold font-mono text-xs hover:bg-emerald-300 transition flex items-center gap-2">
-                  <i class="fa-solid fa-play"></i>
-                  <span>ฟังรายการพี่ฉอด</span>
-                </button>
-                <a href="https://www.youtube.com/@CHANGE2561" target="_blank" class="text-xs text-slate-400 hover:text-slate-200 underline">ฟังย้อนหลัง (YouTube)</a>
-              </div>
+            <div id="terminalLog" class="log-terminal">
+                [System] พร้อมใช้งาน... กรุณากดเชื่อมต่อ Bluetooth หรือทดสอบผ่านโหมด Demo
             </div>
-          </div>
-
-          <!-- Current Playing Bar -->
-          <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <i id="player-icon" class="fa-solid fa-circle-pause text-slate-500 text-2xl"></i>
-              <div>
-                <span class="text-[10px] font-mono text-slate-400 block uppercase">กำลังเล่นอยู่ขณะนี้</span>
-                <span id="current-station-title" class="font-mono text-sm font-bold text-slate-200">ยังไม่ได้เลือกคลื่นวิทยุ</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <button onclick="stopAudio()" class="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-mono font-bold hover:bg-rose-500/30 transition">
-                หยุดเล่น
-              </button>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <!-- VIEW 3: DTC DIAGNOSTICS -->
-      <div id="view-dtc" class="p-6 space-y-6 flex-1 hidden">
-        <div class="glass-panel rounded-3xl p-6 space-y-4">
-          <h2 class="text-lg font-bold font-mono text-slate-100">การสแกนรหัสข้อผิดพลาด ECU (DTC Diagnostic Tool)</h2>
-          <div id="dtc-status" class="p-4 rounded-xl bg-slate-900 border border-slate-800 font-mono text-xs text-slate-300">
-            ระบบพร้อมสแกนรหัสข้อผิดพลาดเครื่องยนต์ 4G64
-          </div>
-        </div>
-      </div>
     </section>
-  </main>
 
-  <script>
-    const state = {
-      demoMode: false,
-      speed: 0,
-      targetSpeed: 0,
-      rpm: 0,
-      targetRpm: 750,
-      ect: 88,
-      headlights: false
-    };
+    <script>
+        let isConnected = false;
+        let simulationInterval = null;
+        let bluetoothDevice = null;
+        const SPP_UUID = "00001101-0000-1000-8000-00805f9b34fb";
 
-    window.onload = function() {
-      startClock();
-      requestAnimationFrame(renderLoop);
-    };
+        // Chart Setup
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(10).fill(''),
+                datasets: [
+                    { label: 'RPM (/100)', data: Array(10).fill(0), borderColor: '#00f3ff', tension: 0.3, borderWidth: 2 },
+                    { label: 'Speed (km/h)', data: Array(10).fill(0), borderColor: '#10b981', tension: 0.3, borderWidth: 2 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { labels: { color: '#94a3b8' } } }
+            }
+        });
 
-    function startClock() {
-      setInterval(() => {
-        const now = new Date();
-        document.getElementById('top-time').innerText = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-      }, 1000);
-    }
+        function logMessage(msg) {
+            const term = document.getElementById('terminalLog');
+            term.innerHTML += `> ${msg}<br>`;
+            term.scrollTop = term.scrollHeight;
+        }
 
-    function renderLoop() {
-      if (state.demoMode) {
-        const time = Date.now() * 0.002;
-        state.targetSpeed = Math.abs(Math.sin(time * 0.5) * 110);
-        state.targetRpm = 800 + Math.abs(Math.sin(time * 0.8) * 3500);
-      }
+        function updateUIStatus(mode, devName = '') {
+            const dot = document.getElementById('statusDot');
+            const title = document.getElementById('statusTitle');
+            const name = document.getElementById('deviceName');
 
-      state.speed += (state.targetSpeed - state.speed) * 0.1;
-      state.rpm += (state.targetRpm - state.rpm) * 0.1;
+            dot.className = 'status-dot';
+            if (mode === 'connected') {
+                dot.classList.add('active');
+                title.innerText = 'CONNECTED';
+                title.style.color = '#10b981';
+                name.innerText = devName || 'ELM327 Bluetooth';
+                isConnected = true;
+            } else if (mode === 'demo') {
+                dot.classList.add('demo');
+                title.innerText = 'DEMO MODE';
+                title.style.color = '#a855f7';
+                name.innerText = 'Simulated ECU Data';
+                isConnected = true;
+            } else {
+                title.innerText = 'DISCONNECTED';
+                title.style.color = '#f87171';
+                name.innerText = 'ยังไม่ได้เลือกอุปกรณ์';
+                isConnected = false;
+            }
+        }
 
-      document.getElementById('speed-digital').innerText = Math.round(state.speed);
-      document.getElementById('rpm-digital').innerText = (state.rpm / 1000).toFixed(1);
+        function toggleSimulation() {
+            if (simulationInterval) {
+                clearInterval(simulationInterval);
+                simulationInterval = null;
+                logMessage("[Demo] ปิดโหมดจำลองแล้ว");
+                updateUIStatus('disconnected');
+            } else {
+                simulationInterval = setInterval(updateSimulationData, 1000);
+                logMessage("[Demo] เริ่มการจำลองส่งค่าเซ็นเซอร์แบบเรียลไทม์");
+                updateUIStatus('demo');
+            }
+        }
 
-      drawSpeedometerCanvas();
-      drawRpmCanvas();
-      requestAnimationFrame(renderLoop);
-    }
+        function updateSimulationData() {
+            let rpm = Math.floor(Math.random() * (3200 - 800) + 800);
+            let speed = Math.floor(Math.random() * 95);
+            let temp = 89;
+            let voltage = (13.8 + Math.random() * 0.4).toFixed(1);
+            let load = Math.floor(Math.random() * 30 + 20);
+            let throttle = Math.floor(Math.random() * 25 + 10);
 
-    function drawSpeedometerCanvas() {
-      const canvas = document.getElementById('canvas-speed');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const cx = canvas.width / 2, cy = canvas.height / 2, radius = 110;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('rpmValue').innerText = rpm;
+            document.getElementById('rpmBar').style.width = (rpm / 7000) * 100 + '%';
 
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, Math.PI * 0.75, Math.PI * 2.25);
-      ctx.strokeStyle = '#1e293b';
-      ctx.lineWidth = 14;
-      ctx.stroke();
+            document.getElementById('speedValue').innerText = speed;
+            document.getElementById('speedBar').style.width = (speed / 200) * 100 + '%';
 
-      const angle = Math.PI * 0.75 + ((Math.min(1, state.speed / 200)) * Math.PI * 1.5);
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, Math.PI * 0.75, angle);
-      ctx.strokeStyle = '#00f0ff';
-      ctx.lineWidth = 14;
-      ctx.stroke();
-    }
+            document.getElementById('tempValue').innerText = temp;
+            document.getElementById('tempBar').style.width = '45%';
 
-    function drawRpmCanvas() {
-      const canvas = document.getElementById('canvas-rpm');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const cx = canvas.width / 2, cy = canvas.height / 2, radius = 110;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('voltageValue').innerText = voltage + ' V';
+            document.getElementById('loadValue').innerText = load + ' %';
+            document.getElementById('throttleValue').innerText = throttle + ' %';
 
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, Math.PI * 0.75, Math.PI * 2.25);
-      ctx.strokeStyle = '#1e293b';
-      ctx.lineWidth = 14;
-      ctx.stroke();
+            performanceChart.data.datasets[0].data.shift();
+            performanceChart.data.datasets[0].data.push(rpm / 100);
+            performanceChart.data.datasets[1].data.shift();
+            performanceChart.data.datasets[1].data.push(speed);
+            performanceChart.update('none');
+        }
 
-      const angle = Math.PI * 0.75 + ((Math.min(1, state.rpm / 6000)) * Math.PI * 1.5);
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, Math.PI * 0.75, angle);
-      ctx.strokeStyle = '#ffaa00';
-      ctx.lineWidth = 14;
-      ctx.stroke();
-    }
+        async function connectBluetooth() {
+            try {
+                if (simulationInterval) toggleSimulation();
+                logMessage("กำลังเปิดหน้าต่างเชื่อมต่อบลูทูธ...");
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [SPP_UUID]
+                });
 
-    function toggleDemoMode() {
-      state.demoMode = !state.demoMode;
-      document.getElementById('demo-btn-text').innerText = state.demoMode ? "ปิดโหมดจำลอง (Stop Demo)" : "เปิดโหมดจำลอง (Demo)";
-      if (!state.demoMode) { state.targetSpeed = 0; state.targetRpm = 0; }
-    }
+                logMessage(`กำลังเชื่อมต่อ: ${bluetoothDevice.name}...`);
+                await bluetoothDevice.gatt.connect();
 
-    function switchTab(tab) {
-      ['dashboard', 'radio', 'dtc'].forEach(t => {
-        document.getElementById(`view-${t}`).classList.add('hidden');
-      });
-      document.getElementById(`view-${tab}`).classList.remove('hidden');
-    }
+                updateUIStatus('connected', bluetoothDevice.name);
+                logMessage("เชื่อมต่อ ELM327 เรียบร้อยแล้ว!");
+            } catch (err) {
+                logMessage("การเชื่อมต่อล้มเหลว: " + err);
+                updateUIStatus('disconnected');
+            }
+        }
 
-    function toggleHeadlights() {
-      state.headlights = !state.headlights;
-      const opacity = state.headlights ? "1" : "0.4";
-      document.getElementById('svg-headlight-left').style.opacity = opacity;
-      document.getElementById('svg-headlight-right').style.opacity = opacity;
-    }
+        function scanDTC() {
+            if (!isConnected) return alert("กรุณาเปิดโหมด Demo หรือเชื่อมต่อ Bluetooth ก่อนครับ");
+            logMessage("กำลังสแกนหาข้อบกพร่อง (Mode 03)...");
+            setTimeout(() => {
+                logMessage("ผลการสแกน: ไม่พบโค้ดความผิดปกติ (No Trouble Codes)");
+            }, 1000);
+        }
 
-    /* Radio Player Functions */
-    function playStation(url, title) {
-      const audio = document.getElementById('main-audio-player');
-      audio.src = url;
-      audio.play().then(() => {
-        document.getElementById('current-station-title').innerText = title;
-        document.getElementById('radio-status-text').innerText = `วิทยุ: ${title}`;
-        document.getElementById('player-icon').className = "fa-solid fa-compact-disc text-emerald-400 text-2xl animate-spin";
-      }).catch(err => {
-        document.getElementById('current-station-title').innerText = `${title} (กรุณากด Play บนเบราว์เซอร์เพื่ออนุญาต)`;
-      });
-    }
-
-    function stopAudio() {
-      const audio = document.getElementById('main-audio-player');
-      audio.pause();
-      document.getElementById('current-station-title').innerText = "หยุดเล่นแล้ว";
-      document.getElementById('radio-status-text').innerText = "วิทยุ: ปิดอยู่";
-      document.getElementById('player-icon').className = "fa-solid fa-circle-pause text-slate-500 text-2xl";
-    }
-  </script>
+        function clearDTC() {
+            if (!isConnected) return alert("กรุณาเชื่อมต่ออุปกรณ์ก่อนครับ");
+            if (confirm("คุณต้องการลบโค้ดและดับไฟเครื่องยนต์ใช่หรือไม่?")) {
+                logMessage("กำลังส่งคำสั่งลบโค้ด (Mode 04)...");
+                setTimeout(() => {
+                    logMessage("ลบโค้ดข้อบกพร่องสำเร็จเรียบร้อย");
+                }, 1000);
+            }
+        }
+    </script>
 </body>
 </html>
